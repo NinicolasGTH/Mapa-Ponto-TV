@@ -4,8 +4,9 @@ import styled from 'styled-components'
 import UnidadeCard from './UnidadeCard'
 
 const OPENCAGE_KEY = '7dd939da3e7c4dcca4a257158845e9b9'
-const RAIO_KM = 50
+const RAIO_KM = 50 // Raio da terra em KM
 
+// Função para calcular a distância com base na latitude e longitude, da fórmula de um cara ai mt brabo
 function calcularDistancia(lat1, lng1, lat2, lng2) {
   const R = 6371
   const dLat = (lat2 - lat1) * Math.PI / 180
@@ -17,6 +18,7 @@ function calcularDistancia(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+// Bloco de código de estilização 
 const Wrapper = styled.div`
   background: #0a0f1a;
   padding: 4rem 2rem;
@@ -145,7 +147,7 @@ const SemResultado = styled.div`
   color: #475569;
   font-size: 0.95rem;
 `
-
+// Busca unidade do PontoTV
 function BuscaUnidade({ unidades }) {
   const [endereco, setEndereco] = useState('')
   const [resultado, setResultado] = useState([])
@@ -153,6 +155,7 @@ function BuscaUnidade({ unidades }) {
   const [erro, setErro] = useState('')
   const [buscou, setBuscou] = useState(false)
 
+  // Filtração de unidades onde PontoTV atua
   function filtrarUnidades(lat, lng) {
     const estadosAtivos = ['pr', 'sp', 'sc']
     const encontradas = []
@@ -170,7 +173,7 @@ function BuscaUnidade({ unidades }) {
       })
     return encontradas.sort((a, b) => a.distancia - b.distancia)
   }
-
+// BuscaPorEndereco
   async function buscarPorEndereco() {
     if (!endereco.trim()) return
     setLoading(true)
@@ -215,7 +218,7 @@ function BuscaUnidade({ unidades }) {
       }
     )
   }
-
+// Bloco de return que renderiza a página
   return (
     <Wrapper>
       <Title>Encontre uma unidade perto de você</Title>
