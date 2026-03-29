@@ -1,10 +1,17 @@
+// Importa React e hooks para estado e efeito colateral
 import React, { useState, useEffect } from 'react'
+// Importa componentes do react-leaflet para o mapa
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet'
+// Importa a biblioteca principal do Leaflet
 import L from 'leaflet'
+// Importa axios para requisições HTTP
 import axios from 'axios'
+// Importa styled-components para estilização
 import styled from 'styled-components'
+// Importa o CSS padrão do Leaflet
 import 'leaflet/dist/leaflet.css'
 
+// Corrige o bug dos ícones padrão do Leaflet não aparecerem corretamente
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -12,27 +19,30 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 })
 
+// Chave da API do OpenCage para geocodificação e raio de busca em km
 const OPENCAGE_KEY = '7dd939da3e7c4dcca4a257158845e9b9'
 const RAIO_KM = 50
 
+// Ícone azul para unidades/franquias
 const iconeUnidade = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 })
-
+// Ícone vermelho para a posição do usuário
 const iconeUsuario = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 })
-
+// Ícone dourado para a unidade mais próxima
 const iconeProximo = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
   iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
 })
 
+// Função utilitária para calcular a distância entre dois pontos geográficos (em km)
 function calcularDistancia(lat1, lng1, lat2, lng2) {
   const R = 6371
   const dLat = (lat2 - lat1) * Math.PI / 180
@@ -44,6 +54,7 @@ function calcularDistancia(lat1, lng1, lat2, lng2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+// Componente auxiliar para mover o centro do mapa quando o usuário faz uma busca
 function MoverMapa({ centro, zoom }) {
   const map = useMap()
   useEffect(() => {
@@ -52,18 +63,30 @@ function MoverMapa({ centro, zoom }) {
   return null
 }
 
+// FIX 1: padding reduzido no mobile para não desperdiçar espaço vertical
 const Section = styled.section`
   background: #080c12;
   padding: 5rem 2rem;
+
+  @media (max-width: 600px) {
+    padding: 3rem 1rem;
+  }
 `
+
 const Inner = styled.div`
   max-width: 1100px;
   margin: 0 auto;
 `
+
 const Header = styled.div`
   text-align: center;
   margin-bottom: 2.5rem;
+
+  @media (max-width: 600px) {
+    margin-bottom: 1.75rem;
+  }
 `
+
 const Tag = styled.p`
   font-size: 0.72rem;
   font-weight: 700;
@@ -77,6 +100,7 @@ const Tag = styled.p`
   gap: 0.75rem;
   &::before, &::after { content: ''; width: 20px; height: 1px; background: #f9ae42; opacity: 0.5; }
 `
+
 const Title = styled.h2`
   font-size: clamp(1.75rem, 3vw, 2.75rem);
   font-weight: 800;
@@ -84,16 +108,29 @@ const Title = styled.h2`
   letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
 `
+
 const Subtitle = styled.p`
   color: #64748b;
   font-size: 0.95rem;
+
+  @media (max-width: 600px) {
+    font-size: 0.85rem;
+  }
 `
+
+// FIX 2: no mobile, empilha os elementos em coluna para evitar aperto
 const SearchRow = styled.div`
   display: flex;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+  }
 `
+
+// FIX 3: Input ocupa 100% da largura no mobile
 const Input = styled.input`
   flex: 1;
   padding: 0.9rem 1.25rem;
@@ -107,7 +144,14 @@ const Input = styled.input`
   min-width: 200px;
   &::placeholder { color: #475569; }
   &:focus { border-color: #0072c0; }
+
+  @media (max-width: 600px) {
+    min-width: unset;
+    width: 100%;
+  }
 `
+
+// FIX 4: Botões ocupam largura total no mobile para fácil toque
 const BtnBuscar = styled.button`
   background: #0072c0;
   color: white;
@@ -122,7 +166,13 @@ const BtnBuscar = styled.button`
   box-shadow: 0 4px 16px rgba(0,114,192,0.3);
   &:hover { background: #005a9a; transform: translateY(-1px); }
   &:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 1rem;
+  }
 `
+
 const BtnLocalizacao = styled.button`
   background: transparent;
   color: #f9ae42;
@@ -136,14 +186,33 @@ const BtnLocalizacao = styled.button`
   white-space: nowrap;
   &:hover { background: rgba(249,174,66,0.08); border-color: #f9ae42; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  @media (max-width: 600px) {
+    width: 100%;
+    padding: 1rem;
+  }
 `
+
+// FIX 5: altura do mapa responsiva com clamp, menor em telas pequenas
 const MapWrap = styled.div`
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.06);
   box-shadow: 0 24px 48px rgba(0,0,0,0.4);
-  .leaflet-container { height: 520px; width: 100%; background: #0d1117; }
+  .leaflet-container {
+    height: clamp(320px, 55vw, 520px);
+    width: 100%;
+    background: #0d1117;
+  }
+
+  @media (max-width: 600px) {
+    border-radius: 12px;
+    .leaflet-container {
+      height: 400px;
+    }
+  }
 `
+
 const ResultInfo = styled.div`
   margin-top: 1.25rem;
   display: flex;
@@ -151,6 +220,7 @@ const ResultInfo = styled.div`
   gap: 0.75rem;
   flex-wrap: wrap;
 `
+
 const Badge = styled.span`
   background: ${p => p.color || 'rgba(0,114,192,0.1)'};
   border: 1px solid ${p => p.border || 'rgba(0,114,192,0.2)'};
@@ -159,12 +229,18 @@ const Badge = styled.span`
   font-weight: 600;
   padding: 4px 12px;
   border-radius: 100px;
+
+  @media (max-width: 600px) {
+    font-size: 0.72rem;
+  }
 `
+
 const Erro = styled.p`
   color: #f87171;
   font-size: 0.875rem;
   margin-top: 0.75rem;
 `
+
 const PopupStyles = styled.div`
   .leaflet-popup-content-wrapper {
     background: #141920;
@@ -174,8 +250,19 @@ const PopupStyles = styled.div`
   }
   .leaflet-popup-tip { background: #141920; }
   .leaflet-popup-content { color: #e2e8f0; margin: 12px 16px; }
+
+  /* FIX 6: popup não estoura a tela em dispositivos pequenos */
+  @media (max-width: 600px) {
+    .leaflet-popup-content-wrapper {
+      max-width: calc(100vw - 48px);
+    }
+    .leaflet-popup-content {
+      margin: 10px 12px;
+    }
+  }
 `
 
+// Componente principal do mapa interativo
 function MapaInterativo({ unidades }) {
   const [endereco, setEndereco] = useState('')
   const [centro, setCentro] = useState([-15.7801, -47.9292])
@@ -263,7 +350,7 @@ function MapaInterativo({ unidades }) {
       <Inner>
         <Header>
           <Tag>Busca por localização</Tag>
-          <Title>Unidades próximas de você</Title>
+          <Title>Unidades próximas de você!</Title>
           <Subtitle>Digite seu endereço ou CEP e veja as unidades PontoTV no mapa</Subtitle>
         </Header>
 
@@ -275,7 +362,7 @@ function MapaInterativo({ unidades }) {
             onKeyDown={e => e.key === 'Enter' && buscarPorEndereco()}
           />
           <BtnBuscar onClick={buscarPorEndereco} disabled={loading}>
-            {loading ? 'Buscando...' : '🔍 Buscar'}
+            {loading ? 'Buscando...' : 'Buscar'}
           </BtnBuscar>
           <BtnLocalizacao onClick={buscarPorLocalizacao} disabled={loading}>
             📍 Minha localização
@@ -313,7 +400,8 @@ function MapaInterativo({ unidades }) {
                 return (
                   <Marker key={i} position={[u.lat, u.lng]} icon={isProxima ? iconeProximo : iconeUnidade}>
                     <Popup>
-                      <div style={{ minWidth: 180 }}>
+                      {/* FIX 6: minWidth menor para não estourar em telas pequenas */}
+                      <div style={{ minWidth: 160, maxWidth: '100%' }}>
                         <p style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 6, color: '#f9ae42' }}>{u.nome}</p>
                         <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: 4 }}>📍 {u.local}</p>
                         {(u.franqueado || u.franqueada) && (

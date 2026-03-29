@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import UnidadeCard from './UnidadeCard'
 
 const OPENCAGE_KEY = '7dd939da3e7c4dcca4a257158845e9b9'
-const RAIO_KM = 50 // Raio da terra em KM
+const RAIO_KM = 100 // Raio de busca em quilômetros
 
 // Função para calcular a distância com base na latitude e longitude, da fórmula de um cara ai mt brabo
 function calcularDistancia(lat1, lng1, lat2, lng2) {
