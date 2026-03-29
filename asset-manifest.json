@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Mapa-Ponto-TV/static/css/main.323d7611.css",
+    "main.js": "/Mapa-Ponto-TV/static/js/main.0a2ed050.js",
+    "static/js/453.dbc5f920.chunk.js": "/Mapa-Ponto-TV/static/js/453.dbc5f920.chunk.js",
+    "index.html": "/Mapa-Ponto-TV/index.html",
+    "main.323d7611.css.map": "/Mapa-Ponto-TV/static/css/main.323d7611.css.map",
+    "main.0a2ed050.js.map": "/Mapa-Ponto-TV/static/js/main.0a2ed050.js.map",
+    "453.dbc5f920.chunk.js.map": "/Mapa-Ponto-TV/static/js/453.dbc5f920.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.323d7611.css",
+    "static/js/main.0a2ed050.js"
+  ]
+}
