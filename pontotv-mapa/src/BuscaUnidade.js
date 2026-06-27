@@ -239,7 +239,7 @@ function BuscaUnidade({ unidades }) {
       <Divider>ou</Divider>
 
       <BtnLocalizacao onClick={buscarPorLocalizacao} disabled={loading}>
-        📍 Usar minha localização
+         Usar minha localização
       </BtnLocalizacao>
 
       {erro && <Erro>{erro}</Erro>}
